@@ -113,11 +113,9 @@ resize();
 
 function clearObjects() {
   for (const item of objects) {
-    scene.remove(item.mesh);
-    item.mesh.geometry.dispose();
-    if (Array.isArray(item.mesh.material)) item.mesh.material.forEach((m) => m.dispose());
-    else item.mesh.material.dispose();
+    disposeGameObject(item);
   }
+
   objects = [];
 }
 
@@ -354,9 +352,7 @@ function animate(now) {
         if (item.type === "orb") {
           score += 10;
           scoreEl.textContent = String(score).padStart(3, "0");
-          scene.remove(item.mesh);
-          item.mesh.geometry.dispose();
-          item.mesh.material.dispose();
+          disposeGameObject(item);
           objects.splice(i, 1);
           continue;
         } else {
@@ -365,9 +361,7 @@ function animate(now) {
         }
       }
       if (item.mesh.position.z > 8) {
-        scene.remove(item.mesh);
-        item.mesh.geometry.dispose();
-        item.mesh.material.dispose();
+        disposeGameObject(item);
         objects.splice(i, 1);
       }
     }
