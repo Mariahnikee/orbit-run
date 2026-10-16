@@ -17,6 +17,7 @@ const pauseButton = $("pause");
 const overlayStart = $("overlay-start");
 const arenaState = $("arena-state");
 const playerLabel = $("player-label");
+const playerAvatar = $("player-avatar");
 const signInButton = $("sign-in");
 const saveStatus = $("save-status");
 
@@ -274,7 +275,8 @@ function applyPlayer(player, signedIn, guest) {
   playerInfo.player = player;
   playerInfo.signedIn = signedIn;
   playerInfo.guest = guest;
-  currentStyle = normalizeStyle(player.style || {});
+  const hasCentralStyle = Boolean(player.style && typeof player.style === "object");
+  currentStyle = normalizeStyle(hasCentralStyle ? player.style : {});
   const oldPosition = character.position.clone();
   scene.remove(character);
   character.traverse((node) => {
@@ -287,12 +289,34 @@ function applyPlayer(player, signedIn, guest) {
   character = createCharacter(currentStyle);
   character.position.copy(oldPosition);
   scene.add(character);
-  playerLabel.textContent = signedIn ? `${player.name || "Player"}${player.account ? ` · @${player.account}` : ""}` : "Guest player";
+  playerLabel.textContent = signedIn
+    ? `${player.name || "Player"}${player.account ? ` · @${player.account}` : ""}`
+    : "Guest player";
+
+  // Start.ng returns the account avatar as `face` (usually a data:image URL).
+  // Only accept image data URLs or HTTPS URLs from the trusted identity response.
+  const face = typeof player.face === "string" ? player.face : "";
+  const safeFace = /^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(face)
+    || /^https:\/\//i.test(face);
+  if (safeFace) {
+    playerAvatar.src = face;
+    playerAvatar.alt = `${player.name || (signedIn ? "Player" : "Guest player")} avatar`;
+    playerAvatar.hidden = false;
+  } else {
+    playerAvatar.removeAttribute("src");
+    playerAvatar.alt = "";
+    playerAvatar.hidden = true;
+  }
+
   $("connection-dot").classList.toggle("connected", signedIn);
   signInButton.hidden = signedIn;
-  messageEl.textContent = signedIn
-    ? `Welcome, ${player.name || "player"}. Your start.ng character style is active.`
-    : "Playing as a guest. Sign in to save scores to start.ng.";
+  messageEl.textContent = hasCentralStyle
+    ? signedIn
+      ? `Welcome, ${player.name || "player"}. Your start.ng character style is active.`
+      : "Playing as a guest with the start.ng character style."
+    : signedIn
+      ? `Welcome, ${player.name || "player"}. Start.ng did not return a character style, so the default look is shown.`
+      : "Playing as a guest. Sign in to save scores to start.ng.";
 }
 
 async function connectPlayer() {

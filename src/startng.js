@@ -1,6 +1,4 @@
 const START_NG = "https://start.ng";
-const API = "https://api.start.ng";
-
 let framePromise;
 export function connectFrame() {
   if (!framePromise) {
@@ -46,9 +44,21 @@ export const signInUrl = () =>
 
 export async function getPlayer() {
   const reply = await askStartNg({ type: "startng:whoami" }, "startng:user");
-  if (!reply) return { player: null, connected: false, guest: false };
+  if (!reply) {
+    return { player: null, style: null, connected: false, signedIn: false, guest: false };
+  }
+
+  const person = reply.user ?? reply.guest ?? null;
+  // The documented connect-page response puts the character style on user.style
+  // (or guest.style). Prefer that exact field before defensive fallbacks.
+  const style = person?.style ?? reply.style ?? reply.data?.style ?? null;
+  const player = person && typeof person === "object"
+    ? { ...person, style }
+    : person;
+
   return {
-    player: reply.user ?? reply.guest ?? null,
+    player,
+    style,
     signedIn: Boolean(reply.user),
     guest: Boolean(reply.guest && !reply.user),
     connected: true,
@@ -65,8 +75,9 @@ export async function getLeaderboard() {
 
 export function onStartNgReturn(callback) {
   const refresh = () => callback();
-  document.addEventListener("visibilitychange", () => {
+  const onVisibilityChange = () => {
     if (!document.hidden) refresh();
-  });
+  };
+  document.addEventListener("visibilitychange", onVisibilityChange);
   window.addEventListener("focus", refresh);
 }

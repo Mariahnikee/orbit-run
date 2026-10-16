@@ -20,15 +20,38 @@ function material(color, extra = {}) {
 
 export function normalizeStyle(style = {}) {
   const allowed = (value, choices, fallback) => choices.includes(value) ? value : fallback;
+  const first = (...values) => values.find((value) => value !== undefined && value !== null && value !== "");
+  const clothing = style.clothing ?? style.colors ?? {};
+  const bodyValue = String(first(style.body, style.bodyType, style.gender, DEFAULT_STYLE.body)).toLowerCase();
+  const hairValue = String(first(style.hair, style.hairStyle, style.hairstyle, DEFAULT_STYLE.hair)).toLowerCase();
+  const hatValue = String(first(style.hat, style.hatStyle, DEFAULT_STYLE.hat)).toLowerCase();
+  const accessoryValue = String(first(style.accessory, style.accessoryType, style.accessoryStyle, DEFAULT_STYLE.accessory)).toLowerCase();
+
   return {
-    body: allowed(style.body, ["female", "male"], DEFAULT_STYLE.body),
-    primaryColor: colorOr(style.primaryColor, DEFAULT_STYLE.primaryColor),
-    secondaryColor: colorOr(style.secondaryColor, DEFAULT_STYLE.secondaryColor),
-    skinColor: colorOr(style.skinColor, DEFAULT_STYLE.skinColor),
-    hairColor: colorOr(style.hairColor, DEFAULT_STYLE.hairColor),
-    hair: allowed(style.hair, ["short", "afro", "braids", "bun", "ponytail", "dreads", "bald"], DEFAULT_STYLE.hair),
-    hat: allowed(style.hat, ["none", "cap", "beanie", "tophat", "crown"], DEFAULT_STYLE.hat),
-    accessory: allowed(style.accessory, ["none", "glasses", "earrings", "beard", "scarf", "backpack"], DEFAULT_STYLE.accessory),
+    body: allowed(
+      ({ woman: "female", feminine: "female", man: "male", masculine: "male" })[bodyValue] ?? bodyValue,
+      ["female", "male"],
+      DEFAULT_STYLE.body,
+    ),
+    primaryColor: colorOr(first(style.primaryColor, style.shirtColor, style.topColor, clothing.primaryColor, clothing.shirt), DEFAULT_STYLE.primaryColor),
+    secondaryColor: colorOr(first(style.secondaryColor, style.pantsColor, style.bottomColor, clothing.secondaryColor, clothing.pants), DEFAULT_STYLE.secondaryColor),
+    skinColor: colorOr(first(style.skinColor, style.skin, style.skinTone), DEFAULT_STYLE.skinColor),
+    hairColor: colorOr(first(style.hairColor, style.hairColour), DEFAULT_STYLE.hairColor),
+    hair: allowed(
+      ({ dreadlocks: "dreads", locs: "dreads", pony: "ponytail" })[hairValue] ?? hairValue,
+      ["short", "afro", "braids", "bun", "ponytail", "dreads", "bald"],
+      DEFAULT_STYLE.hair,
+    ),
+    hat: allowed(
+      ({ no: "none", "top-hat": "tophat" })[hatValue] ?? hatValue,
+      ["none", "cap", "beanie", "tophat", "crown"],
+      DEFAULT_STYLE.hat,
+    ),
+    accessory: allowed(
+      ({ no: "none" })[accessoryValue] ?? accessoryValue,
+      ["none", "glasses", "earrings", "beard", "scarf", "backpack"],
+      DEFAULT_STYLE.accessory,
+    ),
   };
 }
 
@@ -56,10 +79,15 @@ export function createCharacter(styleInput = {}) {
   };
   const box = (size, mat, pos, parent = group) => add(new THREE.BoxGeometry(...size), mat, pos, parent);
 
-  // Body proportions are intentionally stylised and readable at the game's camera distance.
-  sphere(0.33, [0.82, 1, 0.62], skin, [0, 1.62, 0]); // head
-  box([0.5, 0.58, 0.32], top, [0, 1.08, 0]); // torso
-  box([0.54, 0.12, 0.35], dark, [0, 0.79, 0]); // belt
+  // Body style changes the silhouette as well as colours and accessories.
+  const feminine = style.body === "female";
+  sphere(0.33, feminine ? [0.84, 1, 0.62] : [0.82, 1, 0.62], skin, [0, 1.62, 0]); // head
+  box(feminine ? [0.46, 0.58, 0.32] : [0.5, 0.58, 0.32], top, [0, 1.08, 0]); // torso
+  box(feminine ? [0.56, 0.14, 0.37] : [0.54, 0.12, 0.35], dark, [0, 0.79, 0]); // belt/hips
+  if (feminine) {
+    // The start.ng body value must be recognisable in-game, not just stored as metadata.
+    add(new THREE.CylinderGeometry(0.23, 0.34, 0.24, 10), legs, [0, 0.62, 0]);
+  }
   box([0.19, 0.46, 0.23], legs, [-0.14, 0.43, 0]);
   box([0.19, 0.46, 0.23], legs, [0.14, 0.43, 0]);
   box([0.25, 0.13, 0.36], dark, [-0.14, 0.13, -0.04]);
