@@ -161,6 +161,21 @@ function startRun() {
   messageEl.textContent = "Run live. Collect cyan orbs and dodge the red hazards.";
   hideOverlay();
 }
+function disposeGameObject(item) {
+  scene.remove(item.mesh);
+  item.mesh.geometry.dispose();
+
+  // The orb's decorative ring has its own geometry.
+  if (item.mesh.userData.ring) {
+    item.mesh.userData.ring.geometry.dispose();
+  }
+
+  if (Array.isArray(item.mesh.material)) {
+    item.mesh.material.forEach((material) => material.dispose());
+  } else {
+    item.mesh.material.dispose();
+  }
+}
 function pauseRun() {
   if (state === "running") {
     state = "paused";
