@@ -1,6 +1,6 @@
-# Orbit Run — Three.js + start.ng
+# Orbit Run — built by Shoyemi Maria
 
-Orbit Run is a browser-based 3D endless runner. Switch between three lanes, collect cyan energy orbs (+10), and avoid red hazards. It supports keyboard, touch, pause/restart, a local personal best, Start.ng player identity and character styling, and the Start.ng leaderboard.
+Orbit Run is a browser-based 3D endless runner built by Shoyemi Maria with Three.js and Start.ng integration. Switch between three lanes, collect cyan energy orbs (+10), dodge red hazards, and chase your personal best. The game supports keyboard and touch controls, pause/restart, Start.ng player identity and character styling, score submission, and the shared leaderboard.
 
 ## Run locally
 
