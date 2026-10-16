@@ -84,6 +84,10 @@ export function createCharacter(styleInput = {}) {
   sphere(0.33, feminine ? [0.84, 1, 0.62] : [0.82, 1, 0.62], skin, [0, 1.62, 0]); // head
   box(feminine ? [0.46, 0.58, 0.32] : [0.5, 0.58, 0.32], top, [0, 1.08, 0]); // torso
   box(feminine ? [0.56, 0.14, 0.37] : [0.54, 0.12, 0.35], dark, [0, 0.79, 0]); // belt/hips
+  if (feminine) {
+    // The start.ng body value must be recognisable in-game, not just stored as metadata.
+    add(new THREE.CylinderGeometry(0.23, 0.34, 0.24, 10), legs, [0, 0.62, 0]);
+  }
   box([0.19, 0.46, 0.23], legs, [-0.14, 0.43, 0]);
   box([0.19, 0.46, 0.23], legs, [0.14, 0.43, 0]);
   box([0.25, 0.13, 0.36], dark, [-0.14, 0.13, -0.04]);
