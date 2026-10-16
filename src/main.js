@@ -274,7 +274,8 @@ function applyPlayer(player, signedIn, guest) {
   playerInfo.player = player;
   playerInfo.signedIn = signedIn;
   playerInfo.guest = guest;
-  currentStyle = normalizeStyle(player.style || {});
+  const hasCentralStyle = Boolean(player.style && typeof player.style === "object");
+  currentStyle = normalizeStyle(hasCentralStyle ? player.style : {});
   const oldPosition = character.position.clone();
   scene.remove(character);
   character.traverse((node) => {
@@ -290,9 +291,13 @@ function applyPlayer(player, signedIn, guest) {
   playerLabel.textContent = signedIn ? `${player.name || "Player"}${player.account ? ` · @${player.account}` : ""}` : "Guest player";
   $("connection-dot").classList.toggle("connected", signedIn);
   signInButton.hidden = signedIn;
-  messageEl.textContent = signedIn
-    ? `Welcome, ${player.name || "player"}. Your start.ng character style is active.`
-    : "Playing as a guest. Sign in to save scores to start.ng.";
+  messageEl.textContent = hasCentralStyle
+    ? signedIn
+      ? `Welcome, ${player.name || "player"}. Your start.ng character style is active.`
+      : "Playing as a guest with the start.ng character style."
+    : signedIn
+      ? `Welcome, ${player.name || "player"}. Start.ng did not return a character style, so the default look is shown.`
+      : "Playing as a guest. Sign in to save scores to start.ng.";
 }
 
 async function connectPlayer() {
