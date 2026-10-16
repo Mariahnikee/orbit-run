@@ -1,0 +1,38 @@
+name: Verify Orbit Run
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - fix/startng-central-avatar-style
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build static game
+        run: npm run build
+      - name: Verify static output
+        run: |
+          test -f dist/index.html
+          node --input-type=module <<'NODE'
+          import { readFileSync, existsSync } from 'node:fs';
+          const html = readFileSync('dist/index.html', 'utf8');
+          if (/\b(?:src|href)=["']\/assets\//i.test(html)) {
+            throw new Error('Found root-relative /assets paths. Start.ng requires relative asset paths.');
+          }
+          if (!existsSync('dist/cover.png')) {
+            console.warn('cover.png is missing. Add the existing root cover.png to Git before publishing.');
+          }
+          console.log('Static HTML paths verified.');
+          NODE
