@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#080b1a" />
+    <meta name="description" content="Orbit Run — a Three.js arcade game for start.ng." />
+    <title>Orbit Run · start.ng</title>
+    <script type="module" crossorigin src="/assets/index-BcTREbj-.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-5Q7DF2mz.css">
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="Orbit Run home"><span class="brand-symbol">◈</span><span>start.ng <i>/</i> Orbit Run</span></a>
+        <div class="player-status"><span class="status-dot" id="connection-dot"></span><span id="player-label">Loading player…</span><button id="sign-in" hidden>Sign in</button></div>
+      </header>
+      <main>
+        <section class="intro-panel">
+          <div class="eyebrow"><span></span> THREE.JS ARCADE · ENDLESS RUN</div>
+          <h1>Find your <em>orbit.</em></h1>
+          <p class="intro-copy">Collect energy orbs. Dodge the hazards. Keep your run alive and beat your best score.</p>
+          <div class="score-row">
+            <div class="score-card"><span>YOUR SCORE</span><strong id="score">000</strong></div>
+            <div class="score-card"><span>PERSONAL BEST</span><strong id="best">000</strong></div>
+            <div class="score-card"><span>TOP PLAYERS</span><strong id="rank">—</strong></div>
+          </div>
+          <div class="button-row">
+            <button class="button primary" id="start">Start run <span>↗</span></button>
+            <button class="button secondary" id="pause" disabled>Pause</button>
+            <button class="button secondary" id="restart">Restart</button>
+          </div>
+          <p class="message" id="message" role="status">Ready? Start a run and collect the cyan orbs.</p>
+        </section>
+        <section class="arena-shell" aria-label="Three dimensional game arena">
+          <div class="arena-heading"><span><i></i> LIVE ARENA</span><span id="arena-state">STANDBY</span></div>
+          <div id="game-canvas" class="game-canvas"></div>
+          <div class="arena-footer"><span>◈ ORBIT RUNNER</span><span>WASD / ARROWS · SPACE TO PAUSE</span></div>
+          <div class="touch-controls"><button id="left" aria-label="Move left">←</button><button id="right" aria-label="Move right">→</button></div>
+          <div class="overlay" id="overlay">
+            <div class="overlay-card"><span class="overlay-kicker">YOUR NEXT RUN</span><h2 id="overlay-title">Ready to launch?</h2><p id="overlay-copy">Move between lanes, collect the glowing orbs, and avoid red hazards.</p><button class="button primary" id="overlay-start">Play now <span>↗</span></button></div>
+          </div>
+        </section>
+      </main>
+      <footer><span>Built with Three.js</span><span id="save-status">Local best saved on this device</span></footer>
+    </div>
+  </body>
+</html>

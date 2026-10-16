@@ -1,0 +1,7 @@
+{
+  "leaderboard": {
+    "stats": [
+      { "key": "score", "label": "Best score", "order": "highest", "format": "number" }
+    ]
+  }
+}
