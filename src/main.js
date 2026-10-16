@@ -217,6 +217,34 @@ function onKey(event) {
   }
 }
 window.addEventListener("keydown", onKey);
+// Touchscreen swipe controls for phones and tablets.
+let swipeStartX = null;
+let swipePointerId = null;
+
+renderer.domElement.addEventListener("pointerdown", (event) => {
+  if (event.pointerType !== "touch") return;
+
+  swipeStartX = event.clientX;
+  swipePointerId = event.pointerId;
+  renderer.domElement.setPointerCapture(event.pointerId);
+});
+
+renderer.domElement.addEventListener("pointerup", (event) => {
+  if (event.pointerId !== swipePointerId || swipeStartX === null) return;
+
+  const deltaX = event.clientX - swipeStartX;
+  swipeStartX = null;
+  swipePointerId = null;
+
+  if (Math.abs(deltaX) >= 35) {
+    move(deltaX < 0 ? -1 : 1);
+  }
+});
+
+renderer.domElement.addEventListener("pointercancel", () => {
+  swipeStartX = null;
+  swipePointerId = null;
+});
 $("left").addEventListener("click", () => move(-1));
 $("right").addEventListener("click", () => move(1));
 startButton.addEventListener("click", startRun);
