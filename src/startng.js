@@ -42,57 +42,18 @@ export async function askStartNg(message, replyType, timeoutMs = 5000) {
 export const signInUrl = () =>
   `${START_NG}/?return_to=${encodeURIComponent(location.origin + location.pathname)}`;
 
-const STYLE_KEYS = [
-  "body", "bodyType", "primaryColor", "secondaryColor", "skinColor", "hairColor",
-  "hair", "hairStyle", "hat", "hatStyle", "accessory", "accessoryType",
-];
-
-function isObject(value) {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function findStyle(...sources) {
-  const candidates = [];
-  for (const source of sources) {
-    if (!isObject(source)) continue;
-    candidates.push(
-      source.style,
-      source.styling,
-      source.avatarStyle,
-      source.characterStyle,
-      source.appearance,
-      source.customization,
-      source.avatar?.style,
-      source.avatar?.styling,
-      source.profile?.style,
-      source.profile?.avatarStyle,
-      source.character?.style,
-    );
-    if (STYLE_KEYS.some((key) => key in source)) candidates.push(source);
-  }
-
-  return candidates.find((candidate) => isObject(candidate) &&
-    STYLE_KEYS.some((key) => key in candidate)) ?? null;
-}
-
 export async function getPlayer() {
   const reply = await askStartNg({ type: "startng:whoami" }, "startng:user");
-  if (!reply) return { player: null, style: null, connected: false, signedIn: false, guest: false };
+  if (!reply) {
+    return { player: null, style: null, connected: false, signedIn: false, guest: false };
+  }
 
   const person = reply.user ?? reply.guest ?? null;
-  const style = findStyle(
-    reply,
-    reply.data,
-    person,
-    person?.profile,
-    person?.avatar,
-    person?.character,
-  );
-
-  // Some host responses place the style beside the user; attach it to the player
-  // object so the renderer cannot silently fall back to the default avatar.
-  const player = isObject(person)
-    ? { ...person, ...(style ? { style } : {}) }
+  // The documented connect-page response puts the character style on user.style
+  // (or guest.style). Prefer that exact field before defensive fallbacks.
+  const style = person?.style ?? reply.style ?? reply.data?.style ?? null;
+  const player = person && typeof person === "object"
+    ? { ...person, style }
     : person;
 
   return {
