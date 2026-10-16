@@ -75,8 +75,9 @@ export async function getLeaderboard() {
 
 export function onStartNgReturn(callback) {
   const refresh = () => callback();
-  document.addEventListener("visibilitychange", () => {
+  const onVisibilityChange = () => {
     if (!document.hidden) refresh();
-  });
+  };
+  document.addEventListener("visibilitychange", onVisibilityChange);
   window.addEventListener("focus", refresh);
 }
